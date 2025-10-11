@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Deletion</title>
+    <script src="https://cdn.tailwindcss.com/3.4.3"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans">
+    
+    <header class="bg-white dark:bg-gray-800 shadow-md fixed w-full z-10">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="{% url 'home' %}" class="text-xl font-bold text-gray-800 dark:text-white">NeuraSoft-IT</a>
+        </nav>
+    </header>
+
+    <main class="pt-20">
+        <div class="container mx-auto px-4 py-8">
+            <div class="max-w-lg mx-auto bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md text-center">
+                <h1 class="text-2xl font-bold mb-4 dark:text-white">Are you sure?</h1>
+                
+                <p class="mb-6 dark:text-gray-300">You are about to permanently delete "<strong>{{ object }}</strong>". This action cannot be undone.</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="flex justify-center space-x-4">
+                        
+                        <a href="{% url cancel_url %}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition">Cancel</a>
+                        
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition">Yes, Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

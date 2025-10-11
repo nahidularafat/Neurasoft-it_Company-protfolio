@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NeuraSoft-IT{% endblock %}</title>
+<script src="https://cdn.tailwindcss.com/3.4.3"></script>
+<script>
+    tailwind.config = {
+        darkMode: 'class', // dark mode কে class এর উপর ভিত্তি করে চালু করে
+        theme: {
+            extend: {
+                // এখানে আপনি আপনার কাস্টম থিম যোগ করতে পারেন
+            }
+        }
+    }
+</script>    <link rel="icon" type="image/png" href="{% static 'images/icon.png' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script>
+        if (localStorage.getItem('color-theme') === 'dark' || (!localStorage.getItem('color-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans">
+    
+    <header class="bg-white dark:bg-gray-800 shadow-md fixed w-full z-10">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="{% url 'home' %}" class="flex items-center space-x-2">
+                <img class="w-10 h-10" src="{% static 'images/logo.png' %}" alt="NeuraSoft-IT Logo">
+                <span class="text-xl font-bold">NeuraSoft-IT</span>
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="{% url 'home' %}" class="nav-link">Home</a>
+                <a href="{% url 'services' %}" class="nav-link">Services</a>
+                <a href="{% url 'blog' %}" class="nav-link">Blog</a>
+                <a href="{% url 'about_us' %}" class="nav-link">About Us</a>
+                <a href="{% url 'review_page' %}" class="nav-link">Review</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600">
+                    <span class="dark:hidden">🌙</span><span class="hidden dark:inline">☀️</span>
+                </button>
+                {% if user.is_authenticated %}
+                    {% if user.profile.role == 'SUPERADMIN' %}
+                        <a href="{% url 'dashboard' %}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition">Dashboard</a>
+                    {% endif %}
+                    <a href="{% url 'logout' %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">Login</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main class="pt-20">
+        {% block content %}
+        {% endblock %}
+    </main>
+    
+    <script src="{% static 'js/script.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

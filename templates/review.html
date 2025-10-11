@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Reviews</title>
+    <script src="https://cdn.tailwindcss.com/3.4.3"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: {} } }
+    </script>
+    <link rel="icon" type="image/png" href="{% static 'images/icon.png' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans">
+    
+    <header class="bg-white dark:bg-gray-800 shadow-md fixed w-full z-10">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="{% url 'home' %}" class="flex items-center space-x-2">
+                <img class="w-10 h-10" src="{% static 'images/logo.png' %}" alt="NeuraSoft-IT Logo">
+                <span class="text-xl font-bold dark:text-white">NeuraSoft-IT</span>
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="{% url 'home' %}" class="nav-link">Home</a>
+                <a href="{% url 'services' %}" class="nav-link">Services</a>
+                <a href="{% url 'blog' %}" class="nav-link">Blog</a>
+                <a href="{% url 'about_us' %}" class="nav-link">About Us</a>
+                <a href="{% url 'review_page' %}" class="nav-link">Review</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600">
+                    <span class="dark:hidden">🌙</span><span class="hidden dark:inline">☀️</span>
+                </button>
+                {% if user.is_authenticated %}
+                    {% if user.profile.role == 'SUPERADMIN' %}
+                        <a href="{% url 'dashboard' %}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition">Dashboard</a>
+                    {% endif %}
+                    <a href="{% url 'logout' %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">Login</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main class="pt-20">
+        <section id="reviews" class="py-16 bg-gray-50 dark:bg-gray-900 overflow-hidden">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12" data-aos="fade-up">
+                    <h2 class="text-3xl font-bold dark:text-white">Customer Reviews</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto mt-4 dark:text-gray-300">See what our clients have to say about our services.</p>
+                </div>
+                
+                <div class="max-w-2xl mx-auto mb-12" data-aos="fade-up" data-aos-delay="200">
+                    {% if user.is_authenticated %}
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                            <h3 class="text-xl font-semibold mb-6 text-center dark:text-white">Share Your Experience</h3>
+                            <form action="{% url 'submit_review' %}" method="POST">
+                                {% csrf_token %}
+                                <div class="mb-6">
+                                    <label class="block text-gray-700 mb-2 dark:text-gray-300">Your Rating</label>
+                                    <div class="flex space-x-1" id="star-rating">
+                                        <i class="star fas fa-star text-2xl text-gray-300 cursor-pointer" data-value="1"></i>
+                                        <i class="star fas fa-star text-2xl text-gray-300 cursor-pointer" data-value="2"></i>
+                                        <i class="star fas fa-star text-2xl text-gray-300 cursor-pointer" data-value="3"></i>
+                                        <i class="star fas fa-star text-2xl text-gray-300 cursor-pointer" data-value="4"></i>
+                                        <i class="star fas fa-star text-2xl text-gray-300 cursor-pointer" data-value="5"></i>
+                                    </div>
+                                    {{ form.rating }}
+                                </div>
+                                <div class="mb-6">
+                                    <label for="{{ form.review_text.id_for_label }}" class="block text-gray-700 mb-2 dark:text-gray-300">Your Review</label>
+                                    {{ form.review_text }}
+                                </div>
+                                <div class="text-center">
+                                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition duration-300">Submit Review</button>
+                                </div>
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="text-center">
+                            <a href="{% url 'login' %}" class="text-blue-500 hover:underline">Log in</a>
+                            <span class="dark:text-gray-300"> to leave a review.</span>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-16">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {% for review in reviews %}
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter0 1 100 %}">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-300 font-bold text-lg mr-4">
+                                    {{ review.user.username.0|upper }}{{ review.user.username.1|upper }}
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold dark:text-white">{{ review.user.username }}</h4>
+                                    <div class="flex">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}
+                                                <span class="text-yellow-400">★</span>
+                                            {% else %}
+                                                <span class="text-gray-300">★</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 dark:text-gray-300">"{{ review.review_text }}"</p>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-4 text-right">{{ review.created_at|date:"F j, Y" }}</p>
+                        </div>
+                        {% empty %}
+                        <p class="text-center dark:text-gray-300 md:col-span-3" data-aos="fade-in">No reviews yet. Be the first to share your experience!</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; {% now "Y" %} NeuraSoft-IT. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true, offset: 50 });
+
+        // Star rating script
+        const stars = document.querySelectorAll('.star');
+        const ratingInput = document.getElementById('id_rating'); // Using Django's default ID
+        
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const value = parseInt(star.dataset.value);
+                if (ratingInput) {
+                    ratingInput.value = value;
+                }
+                stars.forEach((s, index) => {
+                    s.classList.toggle('text-yellow-400', index < value);
+                    s.classList.toggle('text-gray-300', index >= value);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
