@@ -59,7 +59,20 @@ def logout_view(request):
 def home(request):
     services = Service.objects.all()
     clients = Client.objects.all()
-    return render(request, 'index.html', {'services': services, 'clients': clients})
+    # Assuming HeroSection model might exist from previous interactions
+    try:
+        from .models import HeroSection
+        hero_section = HeroSection.objects.filter(is_active=True).first()
+    except ImportError:
+        hero_section = None
+    
+    context = {
+        'services': services,
+        'clients': clients,
+        'hero_section': hero_section,
+    }
+    return render(request, 'index.html', context)
+
 
 def services_page(request):
     services = Service.objects.all()
@@ -93,17 +106,14 @@ def submit_review(request):
             return redirect('review_page')
     return redirect('review_page')
 
-# --- Generic CRUD for any model (Helper views) ---
+# --- Generic CRUD for models WITHOUT author field ---
 @login_required
 @superadmin_required
 def create_item(request, model_form, template_name, redirect_url, item_name):
     if request.method == 'POST':
         form = model_form(request.POST, request.FILES)
         if form.is_valid():
-            instance = form.save(commit=False)
-            if hasattr(instance, 'author'):
-                instance.author = request.user
-            instance.save()
+            form.save()
             return redirect(redirect_url)
     else:
         form = model_form()
@@ -142,9 +152,22 @@ def service_update(request, pk):
 def service_delete(request, pk):
     return delete_item(request, pk, Service, 'confirm_delete.html', 'services')
 
-# --- BlogPost CRUD ---
+# --- BlogPost CRUD (Special Handling for Author) ---
+@login_required
+@superadmin_required
 def blog_create(request):
-    return create_item(request, BlogPostForm, 'generic_form.html', 'blog', 'Blog Post')
+    if request.method == 'POST':
+        form = BlogPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            # ** পরিবর্তন এখানে **
+            post = form.save(commit=False)  # Don't save to DB yet
+            post.author = request.user      # Set the author to the logged-in user
+            post.save()                     # Now save the instance with the author
+            return redirect('blog')
+    else:
+        form = BlogPostForm()
+    return render(request, 'generic_form.html', {'form': form, 'title': 'Add New Blog Post'})
+
 
 def blog_update(request, pk):
     return update_item(request, pk, BlogPost, BlogPostForm, 'generic_form.html', 'blog')
@@ -182,6 +205,11 @@ def client_delete(request, pk):
 @login_required
 @superadmin_required
 def dashboard(request):
+    # Assuming HeroSection model might exist from previous interactions
+    try:
+        from .views import hero_section_update
+    except ImportError:
+        pass
     return render(request, 'dashboard/dashboard.html')
 
 @login_required
@@ -198,3 +226,15 @@ def user_management(request):
 
     users = User.objects.all().select_related('profile')
     return render(request, 'dashboard/user_management.html', {'users': users})
+
+# This is a placeholder for a view that might exist from previous user requests
+try:
+    from .forms import HeroSectionForm
+    from .models import HeroSection
+    @login_required
+    @superadmin_required
+    def hero_section_update(request):
+        hero_section, created = HeroSection.objects.get_or_create(is_active=True)
+        return update_item(request, hero_section.pk, HeroSection, HeroSectionForm, 'generic_form.html', 'dashboard')
+except (ImportError, NameError):
+    pass

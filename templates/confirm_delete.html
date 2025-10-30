@@ -4,36 +4,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirm Deletion</title>
-    <script src="https://cdn.tailwindcss.com/3.4.3"></script>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans">
+    <title>Confirm Deletion - IT-SOLUTION</title>
     
-    <header class="bg-white dark:bg-gray-800 shadow-md fixed w-full z-10">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com/3.4.3"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        accent: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'images/icon.png' %}">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .dark .glass-effect {
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .warning-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-left: 4px solid #ef4444;
+        }
+        .dark .warning-card {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #ef4444;
+        }
+        .pulse-warning {
+            animation: pulse-warning 2s infinite;
+        }
+        @keyframes pulse-warning {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body class="bg-white dark:bg-accent-900 text-accent-800 dark:text-accent-100 font-sans transition-colors duration-300">
+
+    <!-- ===== HEADER ===== -->
+    <header class="glass-effect fixed w-full z-50 shadow-sm">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="{% url 'home' %}" class="text-xl font-bold text-gray-800 dark:text-white">NeuraSoft-IT</a>
+            
+            <!-- Logo -->
+            <a href="{% url 'home' %}" class="flex items-center space-x-3 group">
+                <div class="p-2 bg-primary-500 rounded-lg group-hover:bg-primary-600 transition-colors shadow-md">
+                    <img class="w-8 h-8" src="{% static 'images/logo.png' %}" alt="IT-SOLUTION Logo">
+                </div>
+                <div>
+                    <span class="text-xl font-bold text-accent-800 dark:text-white block">IT-SOLUTION</span>
+                    <span class="text-primary-500 font-semibold text-sm -mt-1 block">IT Solutions</span>
+                </div>
+            </a>
         </nav>
     </header>
 
+    <!-- ===== MAIN CONTENT ===== -->
     <main class="pt-20">
-        <div class="container mx-auto px-4 py-8">
-            <div class="max-w-lg mx-auto bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md text-center">
-                <h1 class="text-2xl font-bold mb-4 dark:text-white">Are you sure?</h1>
-                
-                <p class="mb-6 dark:text-gray-300">You are about to permanently delete "<strong>{{ object }}</strong>". This action cannot be undone.</p>
-                
-                <form method="POST">
-                    {% csrf_token %}
-                    <div class="flex justify-center space-x-4">
-                        
-                        <a href="{% url cancel_url %}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition">Cancel</a>
-                        
-                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition">Yes, Delete</button>
+        <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-accent-50 dark:from-accent-800 dark:to-accent-900 py-12 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-md w-full">
+                <!-- Warning Card -->
+                <div class="warning-card rounded-2xl shadow-2xl p-8 text-center pulse-warning" data-aos="zoom-in">
+                    <!-- Warning Icon -->
+                    <div class="mx-auto w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
                     </div>
-                </form>
+
+                    <!-- Warning Title -->
+                    <h1 class="text-2xl md:text-3xl font-bold text-accent-800 dark:text-white mb-4">
+                        Confirm Deletion
+                    </h1>
+
+                    <!-- Warning Message -->
+                    <div class="space-y-4 mb-8">
+                        <p class="text-accent-600 dark:text-accent-300 text-lg leading-relaxed">
+                            You are about to permanently delete:
+                        </p>
+                        
+                        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+                            <h3 class="font-semibold text-red-800 dark:text-red-200 text-lg">
+                                "{{ object }}"
+                            </h3>
+                            {% if object_type %}
+                            <p class="text-sm text-red-600 dark:text-red-400 mt-1">
+                                {{ object_type }}
+                            </p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Critical Warning -->
+                        <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4">
+                            <div class="flex items-start">
+                                <i class="fas fa-radiation text-yellow-500 text-lg mr-3 mt-0.5"></i>
+                                <div class="text-left">
+                                    <h4 class="font-semibold text-yellow-800 dark:text-yellow-200 text-sm">
+                                        Critical Action
+                                    </h4>
+                                    <p class="text-yellow-700 dark:text-yellow-300 text-sm mt-1">
+                                        This action <strong class="text-red-500">cannot be undone</strong>. All associated data will be permanently removed from the system.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Confirmation Form -->
+                    <form method="POST" class="space-y-4">
+                        {% csrf_token %}
+                        
+                        <!-- Security Check -->
+                        <div class="bg-accent-50 dark:bg-accent-800/50 rounded-xl p-4 border border-accent-200 dark:border-accent-700">
+                            <label for="confirmation" class="flex items-center justify-center cursor-pointer">
+                                <input type="checkbox" id="confirmation" name="confirmation" required 
+                                       class="h-4 w-4 text-red-500 focus:ring-red-500 border-accent-300 rounded mr-3">
+                                <span class="text-sm text-accent-700 dark:text-accent-300">
+                                    I understand this action is irreversible
+                                </span>
+                            </label>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                            <a href="{% url cancel_url %}" 
+                               class="flex-1 bg-accent-200 hover:bg-accent-300 text-accent-800 dark:bg-accent-700 dark:hover:bg-accent-600 dark:text-accent-100 px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center group">
+                                <i class="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
+                                Cancel
+                            </a>
+                            
+                            <button type="submit" 
+                                    id="delete-btn"
+                                    disabled
+                                    class="flex-1 btn-danger text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg opacity-50 cursor-not-allowed flex items-center justify-center group">
+                                <i class="fas fa-trash mr-2 group-hover:shake"></i>
+                                Delete Permanently
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Additional Warning -->
+                    <div class="mt-6 pt-4 border-t border-accent-200 dark:border-accent-700">
+                        <p class="text-xs text-accent-500 dark:text-accent-400">
+                            <i class="fas fa-shield-alt mr-1"></i>
+                            For security reasons, this action requires explicit confirmation
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Safety Information -->
+                <div class="mt-8 text-center">
+                    <div class="bg-white dark:bg-accent-800 rounded-xl p-6 shadow-lg">
+                        <h3 class="text-sm font-semibold text-accent-700 dark:text-accent-300 mb-3 flex items-center justify-center">
+                            <i class="fas fa-life-ring mr-2 text-primary-500"></i>
+                            Need Help?
+                        </h3>
+                        <p class="text-xs text-accent-600 dark:text-accent-400 mb-4">
+                            If you're unsure about this action, consider:
+                        </p>
+                        <ul class="text-xs text-accent-500 dark:text-accent-500 space-y-1 text-left">
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2 text-xs"></i>
+                                Archiving instead of deleting
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2 text-xs"></i>
+                                Consulting with your team
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2 text-xs"></i>
+                                Creating a backup first
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-accent-800 text-accent-200 py-8">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <a href="{% url 'home' %}" class="flex items-center space-x-3">
+                        <div class="p-2 bg-primary-500 rounded-lg">
+                            <img class="w-6 h-6" src="{% static 'images/logo.png' %}" alt="IT-SOLUTION Logo">
+                        </div>
+                        <div>
+                            <span class="text-lg font-bold text-white block">IT-SOLUTION</span>
+                            <span class="text-primary-400 font-semibold text-xs -mt-1 block">IT Solutions</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="text-center text-accent-400 text-sm">
+                    <p>&copy; {% now "Y" %} IT-SOLUTION. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== SCRIPTS ===== -->
+    <script src="{% static 'js/script.js' %}"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ 
+            duration: 800, 
+            once: true, 
+            offset: 50,
+            easing: 'ease-out-cubic'
+        });
+
+        // Enhanced confirmation logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmationCheckbox = document.getElementById('confirmation');
+            const deleteButton = document.getElementById('delete-btn');
+            const form = document.querySelector('form');
+
+            // Enable/disable delete button based on confirmation
+            confirmationCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    deleteButton.disabled = false;
+                    deleteButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                    deleteButton.classList.add('hover:shadow-xl', 'transform', 'hover:-translate-y-0.5');
+                } else {
+                    deleteButton.disabled = true;
+                    deleteButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    deleteButton.classList.remove('hover:shadow-xl', 'transform', 'hover:-translate-y-0.5');
+                }
+            });
+
+            // Double confirmation on submit
+            form.addEventListener('submit', function(e) {
+                if (!confirmationCheckbox.checked) {
+                    e.preventDefault();
+                    return;
+                }
+
+                const confirmed = confirm('⚠️ FINAL WARNING: This will permanently delete "{{ object }}". This action cannot be reversed. Are you absolutely sure?');
+                if (!confirmed) {
+                    e.preventDefault();
+                    
+                    // Visual feedback for cancellation
+                    deleteButton.classList.add('shake');
+                    setTimeout(() => {
+                        deleteButton.classList.remove('shake');
+                    }, 500);
+                }
+            });
+
+            // Add shake animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes shake {
+                    0%, 100% { transform: translateX(0); }
+                    25% { transform: translateX(-5px); }
+                    75% { transform: translateX(5px); }
+                }
+                .shake {
+                    animation: shake 0.5s ease-in-out;
+                }
+                .group-hover\\:shake:hover {
+                    animation: shake 0.5s ease-in-out;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Escape key to cancel
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    window.location.href = "{% url cancel_url %}";
+                }
+            });
+        });
+    </script>
 </body>
 </html>
